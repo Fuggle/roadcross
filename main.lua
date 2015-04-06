@@ -38,6 +38,7 @@ function Game:enter()
 end
 
 function Game:draw()
+	
 	drawObjects()
 end
 

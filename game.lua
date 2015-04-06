@@ -1,25 +1,28 @@
-local playerBlue
-local playerRed
+local playerBlue = 5
+local playerRed = 5
 
 function loadGame()
-	playerBlue = 50
-	playerRed = 50
+	playerBlue = 5
+	playerRed = 5
 end
 
 function drawObjects()
-	love.graphics.setColor(255, 0, 0);
-    love.graphics.circle("fill", 300, 300, 10, 40);
-    love.graphics.circle("fill", 300, 330, 10, 40);
-    love.graphics.circle("fill", 300, 360, 10, 40);
-    love.graphics.circle("fill", 300, 390, 10, 40);
-    love.graphics.circle("fill", 300, 420, 10, 40);
+    bluePlace = 420;
+    redPlace = 150;
 
-	love.graphics.setColor(0, 0, 255);
-    love.graphics.circle("fill", 300, 270, 10, 40);
-    love.graphics.circle("fill", 300, 240, 10, 40);
-    love.graphics.circle("fill", 300, 210, 10, 40);
-    love.graphics.circle("fill", 300, 180, 10, 40);
-    love.graphics.circle("fill", 300, 150, 10, 40);
+
+  	for i=1,playerBlue,1 do
+  		love.graphics.setColor(255, 0, 0); --blue
+    	love.graphics.circle("fill", 300, bluePlace, 10, 40);
+		bluePlace = bluePlace - 30;
+  	end
+
+  	for i=1,playerRed,1 do
+  		love.graphics.setColor(0, 0, 255); --red
+    	love.graphics.circle("fill", 300, redPlace, 10, 40);
+    	redPlace = redPlace + 30;
+  	end
+
 end
 
 function updateObjects(dt)
@@ -30,29 +33,29 @@ function love.keypressed(key, unicode)
 	if key == "w" then
 		--player Blue
 		if checkScore(playerBlue) then 
-			playerBlue = playerBlue + 1
-			playerRed = playerRed - 1
+			playerBlue = playerBlue + 1;
+			playerRed = playerRed - 1;
 		end
 	end
 	if key == "up" then
 		--player Red
 		if checkScore(playerRed) then 
-			playerRed = playerRed + 1
-			playerBlue = playerBlue - 1
+			playerRed = playerRed + 1;
+			playerBlue = playerBlue - 1;
 		end
 	end
-	print("--BLUE--")
-	print(playerBlue)
-	print("--RED--")
-	print(playerRed)
-	print("-------")
+	print("--BLUE--");
+	print(playerBlue);
+	print("--RED--");
+	print(playerRed);
+	print("-------");
 end
 
 --check that the sum of the players' score is not more than 100
 function checkScore(player)
-	if playerBlue + playerRed == 100
+	if playerBlue + playerRed == 10
 		and player >= 0 
-		and player < 100 then
+		and player < 10 then
 		return true
 	else 
 		return false
