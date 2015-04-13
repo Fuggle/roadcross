@@ -33,7 +33,7 @@ function love.keypressed(key, unicode)
 	if key == "w" then
 		--player Blue
 		if checkScore(playerBlue) then 
-			playerBlue = playerBlue + 1;
+			playerBlue = playerBlue + 1; --should pass the score bumping to an external function for consistency
 			playerRed = playerRed - 1;
 		end
 	end
