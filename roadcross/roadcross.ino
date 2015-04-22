@@ -1,11 +1,11 @@
 int playerBlue = 5;
 int playerRed = 5;
 
-int playerOneButton = 13; //pin no for player button
-int playerTwoButton = 12; //pin no for player button
-int ledPin1 = 8; //pin no for LED output
-int ledPin2 = 9;
-int ledPin3 = 10;
+int playerOneButton = 8; //pin no for player button
+int playerTwoButton = 9; //pin no for player button
+int ledPin1 = 13; //pin no for LED output
+int ledPin2 = 12;
+int ledPin3 = 11;
 
 int playerOneVal = 0; //to be the value of the input button
 int playerTwoVal = 0; //to be the value of the input button
@@ -13,7 +13,7 @@ int playerTwoVal = 0; //to be the value of the input button
 void setup() {
   Serial.begin(9600);
   // put your setup code here, to run once:
-  Serial.println(playerOneButton);
+ 
   pinMode(playerOneButton, INPUT);
   pinMode(playerTwoButton, INPUT);
   pinMode(ledPin1, OUTPUT);
@@ -33,24 +33,24 @@ void loop() {
   
   //check the input and count a press if pressed.
   //pass to keypress function.
-  Serial.println(playerOneVal);
-  Serial.println(playerTwoVal);
+  //Serial.println(playerOneVal);
+  //Serial.println(playerTwoVal);
  
   //drawObjects code from lua example will become output to LEDs.
   if (playerOneVal != 0) {
-    digitalWrite(ledPin3, HIGH);
+    digitalWrite(ledPin1, HIGH);
+    Serial.println("Red");
   } else {
-    digitalWrite(ledPin3, LOW);
+    digitalWrite(ledPin1, LOW);
   }
-  /*if (playerTwoVal != 0) {
+  if (playerTwoVal != 0) {
     digitalWrite(ledPin2, HIGH);
+    Serial.println("Blue");
   } else {
     digitalWrite(ledPin2, LOW);
   }
-  
-  */
  
-  
+  delay(200);
   
 }
 
