@@ -1,10 +1,11 @@
-
+#include <MsTimer2.h>
 
   int greenLed=8;
   int redLed=9;
   
-  int redTime=10;
-  int greenTime=5;
+  int greenStatus;
+  int redStatus;
+  int count = 0;
   
   int buttonPin=2;
   int buttonPin2=3;
@@ -12,27 +13,73 @@
   int buttonLed=10;
   int buttonState = 0;
   int buttonState2 = 0;
+  
+  boolean buttonPressed = LOW;
+  
+//signal light function 
+void signalLight()
+{
+  count++;
+   /*********************** the green light is on **************************/
+  if(greenStatus)
+  {
+    if (count > 2)
+    {
+     digitalWrite(greenLed,LOW);
+     digitalWrite(redLed,HIGH);
+     redStatus = HIGH;
+     greenStatus = LOW;
+     count = 0;
+     buttonPressed = LOW;
+    }
+  }
+  /*********************** the red light is on **************************/
+  else if (redStatus && buttonPressed)
+  {
+    if (count > 5)
+    {
+      digitalWrite(greenLed,HIGH);
+      digitalWrite(redLed,LOW);
+      redStatus = LOW;
+      greenStatus = HIGH;
+      count = 0;
+    }
+  }
+}
 void setup() {
+   Serial.begin(9600);
   // put your setup code here, to run once:
+  //light
   pinMode(greenLed,OUTPUT);
   pinMode(redLed,OUTPUT);
+  //buttons
   pinMode(buttonPin,INPUT);
+  pinMode(buttonPin2,INPUT);
   pinMode(buttonLed,OUTPUT); 
+  /*********************** inistial the signal light **************************/
+  digitalWrite(greenLed,HIGH);
+  digitalWrite(redLed,LOW);
+  greenStatus = HIGH;
+  redStatus = LOW;
+  //set the timer
+  MsTimer2::set(1000, signalLight);// run every sec
+  MsTimer2::start();
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
-  // red light on
-  while(redTime >= 0)
-  {
-    digitalWrite(greenLed,LOW);
-    digitalWrite(redLed,HIGH);
+  
     buttonState = digitalRead(buttonPin);
     buttonState2 = digitalRead(buttonPin2);
     //button1
     if (buttonState == HIGH)
     {
       digitalWrite(buttonLed,HIGH);
+      if (!buttonPressed)
+      {
+        count = 0;
+      }
+      buttonPressed = HIGH;
     }else
     {
       digitalWrite(buttonLed,LOW);
@@ -41,39 +88,13 @@ void loop() {
      if (buttonState2 == HIGH)
     {
       digitalWrite(buttonLed2,HIGH);
+      if (!buttonPressed)
+      {
+        count = 0;
+      }
+      buttonPressed = HIGH;
     }else
     {
       digitalWrite(buttonLed2,LOW);
     }
-    if(redTime == 0)
-    {
-      greenTime = 5;
-    }
-  }
-  //green light on
-  while(greenTime >= 0)
-  {
-    digitalWrite(redLed,LOW);
-    greenTime--;
-    if(greenTime<3)
-    {
-      digitalWrite(greenLed, HIGH);
-      delay(500);
-      digitalWrite(greenLed, LOW);
-      delay(500);
-    }else
-    {
-      digitalWrite(greenLed, HIGH);
-      delay(1000);
-    }
-    if(greenTime == 0)
-    {
-      redTime = 10;
-    }
-  }
-  /*digitalWrite(greenLed, LOW);
-  delay(redTime);
-  digitalWrite(redled,LOW);
-  digitalWrite(greenLed, HIGH);
-  delay(greenTime);*/
 }
