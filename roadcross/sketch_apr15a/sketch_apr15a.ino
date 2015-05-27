@@ -1,13 +1,13 @@
 #include <MsTimer2.h>
 
-  int greenLed=8;
+  int greenLed=7;
   int redLed=9;
   
   int greenStatus;
   int redStatus;
   int count = 0;
   
-  int buttonPin=2;
+  int buttonPin=8;
   int buttonPin2=3;
   int buttonLed2=11;
   int buttonLed=10;
@@ -75,6 +75,7 @@ void loop() {
     if (buttonState == HIGH)
     {
       digitalWrite(buttonLed,HIGH);
+      Serial.println("UP");
       if (!buttonPressed)
       {
         count = 0;
@@ -82,6 +83,7 @@ void loop() {
       buttonPressed = HIGH;
     }else
     {
+      Serial.println("DOWN");
       digitalWrite(buttonLed,LOW);
     }
     //button2
