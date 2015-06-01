@@ -110,34 +110,64 @@ int soundSpeed = 1450;
 
 
 //BLUE SIDE INPUTS
-//int blueButtonPin = 46; //pin no for input BLUE PLAYER
-int bluePunchOne = 6; //pin for BLUE PLAYER (PUNCHER)
+int blueButtonPin = 4; //pin no for input BLUE PLAYER
+int bluePunchOnePin = 17; //pin for BLUE PLAYER (PUNCHER)
 //int contactRawVal = 0; //raw input value from the contact switch
 //boolean contactVal = false; //value from contact switch mapped to boolean
-//int blueButtonState;  //current reading of the input pin
-//int lastBlueButtonState = LOW; //previous reading for the blue button
+int blueButtonState;  //current reading of the input pin
+int lastBlueButtonState = LOW; //previous reading for the blue button
 int bluePunchOneState; //current state of puncher
 int lastBluePunchOneState = LOW; //previous reading of puncher
 
+int bluePunchTwoPin = 18;
+int bluePunchTwoState; //current state of puncher
+int lastBluePunchTwoState = LOW; //previous reading of puncher
+
+int bluePunchThreePin = 19;
+int bluePunchThreeState; //current state of puncher
+int lastBluePunchThreeState = LOW; //previous reading of puncher
+
+
 //RED PLAYER INPUTS
-int redButtonPin = 7; //pin for RED PLAYER
+//red button
+int redButtonPin = 3; //pin for RED PLAYER
 int redButtonState; //current reading of the red button pin;
-int lastRedButtonState = LOW; //previous reading for the red button
+int lastRedButtonState = LOW; //previous reading for the red button;
+//punch inputs
+int redPunchOnePin = 16; //red ONE
+int redPunchOneState;
+int lastRedPunchOneState = LOW;
+int redPunchTwoPin = 15; //red TWO
+int redPunchTwoState;
+int lastRedPunchTwoState = LOW;
+int redPunchThreePin = 14; //red THREE
+int redPunchThreeState;
+int lastRedPunchThreeState = LOW;
+int redPunchFourPin = 2; //red FOUR
+int redPunchFourState;
+int lastRedPunchFourState = LOW;
+
 
 boolean playable = true;
 int pushbackLimit = 2; //how many button presses will = 1 with pushback (changes dynamically)
 
 //debouncing values...
 long lastRedButtonDebounce = 0;
+long lastRedPunchOneDebounce = 0;
+long lastRedPunchTwoDebounce = 0;
+long lastRedPunchThreeDebounce = 0;
+long lastRedPunchFourDebounce = 0;
 long lastBlueButtonDebounce = 0;
 long lastBluePunchOneDebounce = 0;
-long debounceDelay = 50; //in milliseconds (I think?)
+long lastBluePunchTwoDebounce = 0;
+long lastBluePunchThreeDebounce = 0;
+long debounceDelay = 40; //in milliseconds (I think?)
 
 //int redScorebarPin = 10;
-int scorebarPin = 48;
+int scorebarPin = 21;
 Servo redServo;
-int redServoPin = 3;
-int redPos = 0; //track position of servo
+int redServoPin = 45;
+int redPos = 30; //track position of servo
 
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(20, scorebarPin, NEO_GRB + NEO_KHZ800);
 // IMPORTANT: To reduce NeoPixel burnout risk, add 1000 uF capacitor across
@@ -149,9 +179,15 @@ void setup() {
   Serial.begin(9600);
   
   //pinMode(contactPin, INPUT);
-  //pinMode(blueButtonPin, INPUT);
+  pinMode(blueButtonPin, INPUT);
   pinMode(redButtonPin, INPUT);
-  pinMode(bluePunchOne, INPUT);
+  pinMode(redPunchOnePin, INPUT);
+  pinMode(redPunchTwoPin, INPUT);
+  pinMode(redPunchThreePin, INPUT);
+  pinMode(redPunchFourPin, INPUT);
+  pinMode(bluePunchOnePin, INPUT);
+  pinMode(bluePunchTwoPin, INPUT);
+  pinMode(bluePunchThreePin, INPUT);
   
   strip.begin();
   strip.show();
@@ -170,19 +206,54 @@ void setup() {
 void loop() {
 
   int redButtonReading = digitalRead(redButtonPin);
-  //int blueButtonReading = digitalRead(blueButtonPin);
-  int bluePunchOneReading = digitalRead(bluePunchOne);
-  
+  int redPunchOneReading = digitalRead(redPunchOnePin);
+  int redPunchTwoReading = digitalRead(redPunchTwoPin);
+  int redPunchThreeReading = digitalRead(redPunchThreePin);
+  int redPunchFourReading = digitalRead(redPunchFourPin);
+  int blueButtonReading = digitalRead(blueButtonPin);
+  int bluePunchOneReading = digitalRead(bluePunchOnePin);
+  int bluePunchTwoReading = digitalRead(bluePunchTwoPin);
+  int bluePunchThreeReading = digitalRead(bluePunchThreePin);
+  Serial.print("Punch one:");
+  Serial.println(redPunchOneReading);
+  Serial.print("punch two: ");
+  Serial.println(redPunchTwoReading);
+  Serial.print("punch three: ");
+  Serial.println(redPunchThreeReading);
+  Serial.print("punch four: ");
+  Serial.println(redPunchFourReading);
   //delay(4);
   //debounce check...
+  //RED DEBOUNCING
   if (redButtonReading != lastRedButtonState) {
     lastRedButtonDebounce = millis();
   }
-  /*if (blueButtonReading != lastBlueButtonState) {
+  if (redPunchOneReading != lastRedPunchOneState) {
+    lastRedPunchOneDebounce = millis();
+  }
+  if (redPunchTwoReading != lastRedPunchTwoState) {
+    
+    lastRedPunchTwoDebounce = millis();
+  }
+  if (redPunchThreeReading != lastRedPunchThreeState) {
+    lastRedPunchThreeDebounce = millis();
+  }
+  if (redPunchFourReading != lastRedPunchFourState) {
+    lastRedPunchFourDebounce = millis();
+  }
+  
+  
+  if (blueButtonReading != lastBlueButtonState) {
     lastBlueButtonDebounce = millis();
-  }*/
+  }
   if (bluePunchOneReading != lastBluePunchOneState) {
     lastBluePunchOneDebounce = millis();
+  }
+  if (bluePunchTwoReading != lastBluePunchTwoState) {
+    lastBluePunchTwoDebounce = millis();
+  }
+  if (bluePunchThreeReading != lastBluePunchThreeState) {
+    lastBluePunchThreeDebounce = millis();
   }
   
   //red button debounce checking
@@ -206,8 +277,80 @@ void loop() {
     }
   }
   
+  //red punch ONE debounce checking
+  if ((millis() - lastRedPunchOneDebounce) > debounceDelay) {
+
+    if (redPunchOneReading != redPunchOneState) {
+      redPunchOneState = redPunchOneReading;
+      
+      // only toggle the LED if the new button state is HIGH
+      if (redPunchOneState == HIGH) {
+        Serial.println("Red ONE score!");
+        
+        incrementScore('r');
+        redPunch = true;
+        drawRed = true;
+      } else {
+        redPunch = false;
+        drawRed = true;
+      }
+    }
+  }
+  
+  //red punch Two debounce checking
+  if ((millis() - lastRedPunchTwoDebounce) > debounceDelay) {
+    
+    if (redPunchTwoReading != redPunchTwoState) {
+      redPunchTwoState = redPunchTwoReading;
+      // only toggle the LED if the new button state is HIGH
+      if (redPunchTwoState == HIGH) {    
+        Serial.println("Red TWO score!");    
+        incrementScore('r');
+        redPunch = true;
+        drawRed = true;
+      } else {
+        redPunch = false;
+        drawRed = true;
+      }
+    }
+  }
+    //red punch Three debounce checking
+  if ((millis() - lastRedPunchThreeDebounce) > debounceDelay) {
+    
+    if (redPunchThreeReading != redPunchThreeState) {
+      redPunchThreeState = redPunchThreeReading;
+      // only toggle the LED if the new button state is HIGH
+      if (redPunchThreeState == HIGH) {
+        Serial.println("Red THREE score!");
+        
+        incrementScore('r');
+        redPunch = true;
+        drawRed = true;
+      } else {
+        redPunch = false;
+        drawRed = true;
+      }
+    }
+  }
+    //red punch Four debounce checking
+  if ((millis() - lastRedPunchFourDebounce) > debounceDelay) {
+    if (redPunchFourReading != redPunchFourState) {
+      redPunchFourState = redPunchFourReading;
+      
+      // only toggle the LED if the new button state is HIGH
+      if (redPunchFourState == HIGH) {
+        Serial.println("Red FOUR score!");
+        incrementScore('r');
+        redPunch = true;
+        drawRed = true;
+      } else {
+        redPunch = false;
+        drawRed = true;
+      }
+    }
+  }
   //blue button debounce checking
-  /*if ((millis() - lastBlueButtonDebounce) > debounceDelay) {
+  if ((millis() - lastBlueButtonDebounce) > debounceDelay) {
     // whatever the reading is at, it's been there for longer
     // than the debounce delay, so take it as the actual current state:
 
@@ -220,7 +363,7 @@ void loop() {
         incrementScore('b');
       }
     }
-  }*/
+  }
   
   if ((millis() - lastBluePunchOneDebounce) > debounceDelay) {
     // whatever the reading is at, it's been there for longer
@@ -232,6 +375,45 @@ void loop() {
 
       // only toggle the LED if the new button state is HIGH
       if (bluePunchOneState == HIGH) {
+        bluePunch = true;
+        drawBlue = true;
+        incrementScore('b');
+      } else {
+        bluePunch = false;
+        drawBlue = true;
+      } 
+    }
+  }
+  
+  if ((millis() - lastBluePunchTwoDebounce) > debounceDelay) {
+    // whatever the reading is at, it's been there for longer
+    // than the debounce delay, so take it as the actual current state:
+
+    // if the button state has changed:
+    if (bluePunchTwoReading != bluePunchTwoState) {
+      bluePunchTwoState = bluePunchTwoReading;
+
+      // only toggle the LED if the new button state is HIGH
+      if (bluePunchTwoState == HIGH) {
+        bluePunch = true;
+        drawBlue = true;
+        incrementScore('b');
+      } else {
+        bluePunch = false;
+        drawBlue = true;
+      } 
+    }
+  }
+  if ((millis() - lastBluePunchThreeDebounce) > debounceDelay) {
+    // whatever the reading is at, it's been there for longer
+    // than the debounce delay, so take it as the actual current state:
+
+    // if the button state has changed:
+    if (bluePunchThreeReading != bluePunchThreeState) {
+      bluePunchThreeState = bluePunchThreeReading;
+
+      // only toggle the LED if the new button state is HIGH
+      if (bluePunchThreeState == HIGH) {
         bluePunch = true;
         drawBlue = true;
         incrementScore('b');
@@ -260,35 +442,35 @@ void loop() {
   if (drawRed) {
     drawRed = false;
     if (!walkLight) { //is red
-      matrix.fillRect(0, 0, 32, 15, matrix.Color333(0, 0, 0)); //clears the other part of the board.
+      matrix.fillRect(32, 0, 64, 15, matrix.Color333(0, 0, 0)); //clears the other part of the board.
       if (!redPunch) {
         //not punching
         drawMans(stopMan, 64, 'r');
       } else {
-        //else punching
-        drawMans(punchMan, 62, 'r');
+        //else punch!
+        drawMans(punchMan, 62, 'r'); //b to draw it TO blue pole        
         redPunch = false;
       }
     } else { //is green
-      matrix.fillRect(0, 0, 32, 15, matrix.Color333(0, 0, 0));
+      matrix.fillRect(32, 0, 64, 15, matrix.Color333(0, 0, 0));
       drawMans(walkMan, 66, 'r');
     }
   }
   if (drawBlue) {
     drawBlue = false;
     if (!walkLight) { //is red
-      matrix.fillRect(32, 0, 64, 15, matrix.Color333(0, 0, 0)); //clears the other part of the board.
-      //if punched less than 50ms ago... draw bluepunchman
+      matrix.fillRect(0, 0, 32, 15, matrix.Color333(0, 0, 0)); //clears the other part of the board.
+      //if punched less than 30ms ago... draw bluepunchman
       if (!bluePunch) {
         //not punching
         drawMans(stopMan, 64, 'b');
       } else {
         //else punching
-        drawMans(punchMan, 62, 'b');
+        drawMans(punchMan, 62, 'b'); //r to draw it TO red pole
         bluePunch = false;
       }
     } else { //is green
-      matrix.fillRect(32, 0, 64, 15, matrix.Color333(0, 0, 0));
+      matrix.fillRect(0, 0, 32, 15, matrix.Color333(0, 0, 0));
       drawMans(walkMan, 66, 'b');
     }
   }
@@ -296,8 +478,15 @@ void loop() {
   //draw the score onto the LED strip
   drawScore();
   lastRedButtonState = redButtonReading;
-  //lastBlueButtonState = blueButtonReading;
+  lastRedPunchOneState = redPunchOneReading;
+  lastRedPunchTwoState = redPunchTwoReading;
+  lastRedPunchThreeState = redPunchThreeReading;
+  lastRedPunchFourState = redPunchFourReading;
+  
+  lastBlueButtonState = blueButtonReading;
   lastBluePunchOneState = bluePunchOneReading;
+  lastBluePunchTwoState = bluePunchTwoReading;
+  lastBluePunchThreeState = bluePunchThreeReading;
   
   //matrix.drawPixel(0, 15, matrix.Color333(6, 0, 4));
   //matrix.drawPixel(32, 15, matrix.Color333(0, 0, 7));
@@ -368,10 +557,10 @@ void incrementScore(char player){
     }
   }
   
-  Serial.print("RED: ");
+  /*Serial.print("RED: ");
   Serial.print(redScore);
   Serial.print(" -- BLUE: ");
-  Serial.println(blueScore);
+  Serial.println(blueScore);*/
 }
 
 void drawScore() {  
@@ -395,7 +584,7 @@ void signalLight()
   if(walkLight) {
     //tone(46, NOTE_A4, 80);
     tone(46, NOTE_C6, 60);
-    if (count > 30) {
+    if (count > 20) {
      resetBots();
      playable = true; //flip game to playable  
      blueScore = singleScore; //reset the game to start again. 
@@ -411,7 +600,7 @@ void signalLight()
     if (count % 10 == 0) {
       tone(46, NOTE_D5, 100);
     }
-    if (count > 80) {
+    if (count > 200) {
       playable = false; //flip game to NOT playable
       walkLight = true;
       drawBlue = true;
@@ -440,17 +629,17 @@ void botLose(char player) {
   //if player red lost, or draw, send red UP
   if (player == 'r' || player == 'd') {
     //send lose state to other board.
-    redPos = 180;
+    redPos = 100;
     redServo.write(redPos);
   }
 }
 
 //resets the bot heads between each game.
 void resetBots() {
-  Serial.println("resetting bots");
+  //Serial.println("resetting bots");
   //send reset / down state to othe
-  if (redPos == 180) {
-    redPos = 0;
+  if (redPos == 100) {
+    redPos = 30;
     redServo.write(redPos);
   }
   
@@ -471,7 +660,7 @@ boolean pushback(char player) {
   }
   if (player == 'b') {
     bluePushCount++;
-    Serial.println(bluePushCount);
+    //Serial.println(bluePushCount);
     if (bluePushCount >= pushbackLimit) {
       bluePushCount = 0;
       return true;
@@ -491,11 +680,11 @@ void drawMans(int man[][2], int len, char p) {
   };
   if (p == 'r') {
     for (int i = 0; i <= len+1; i++) {
-      matrix.drawPixel(man[i][0], man[i][1], matrix.Color333(r, g, 0)); //for screen one
+      matrix.drawPixel(man[i][0]+32, man[i][1], matrix.Color333(r, g, 0)); //for screen one
     }
   } else if ( p == 'b') {
     for (int i = 0; i <= len+1; i++) {
-      matrix.drawPixel(man[i][0]+32, man[i][1], matrix.Color333(r, g, 0)); //for sreen two
+      matrix.drawPixel(man[i][0], man[i][1], matrix.Color333(r, g, 0)); //for sreen two
     }
   } 
   

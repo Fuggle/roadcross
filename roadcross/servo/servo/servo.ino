@@ -6,14 +6,15 @@
 #include <Servo.h>
  
 Servo myservo;  // create servo object to control a servo
-                // a maximum of eight servo objects can be created
+Servo myservo2;                // a maximum of eight servo objects can be created
  
 int pos = 0;    // variable to store the servo position
  
 void setup()
 {
   Serial.begin(9600);
-  myservo.attach(3);  // attaches the servo on pin 9 to the servo object
+  myservo.attach(45);  // attaches the servo on pin 9 to the servo object
+  myservo2.attach(43);
 }
  
  
@@ -40,16 +41,19 @@ void loop()
   //delay(8000);
   //myservo.write(0);
   Serial.println(myservo.read());
+  Serial.println(myservo2.read());
   //myservo.write(180);
   //myservo.detach();
-  delay(20000);
-  myservo.attach(3);
-  if (pos == 0) {
-    pos = 20;
+  delay(10000);
+  //myservo.attach(45);
+  if (pos != 160) {
+    pos = 160;
     myservo.write(pos);
+    myservo2.write(pos);
   } else {
-    pos = 0;
+    pos = 10;
     myservo.write(pos);
+    myservo2.write(pos);
   }
   //Serial.println(myservo.read());
   //myservo.write(0);
